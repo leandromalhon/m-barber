@@ -1,4 +1,4 @@
-import { Card, CardContent } from "./ui/card";
+import { Card, CardContent } from "./ui/card"
 
 const Footer = () => {
   return (
@@ -6,12 +6,12 @@ const Footer = () => {
       <Card>
         <CardContent className="px-5 py-6">
           <p className="text-sm text-gray-400">
-            © 2023 Copyright <span className="font-bold">FSW Barber</span>
+            © 2025 Copyright <span className="font-bold">M-Barber</span>
           </p>
         </CardContent>
       </Card>
     </footer>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer

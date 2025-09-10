@@ -1,13 +1,13 @@
-import BarbershopItem from "../_components/barbershop-item";
-import Header from "../_components/header";
-import Search from "../_components/search";
-import { db } from "../_lib/prisma";
+import BarbershopItem from "../_components/barbershop-item"
+import Header from "../_components/header"
+import Search from "../_components/search"
+import { db } from "../_lib/prisma"
 
 interface BarbershopsPageProps {
   searchParams: {
-    title?: string;
-    service?: string;
-  };
+    title?: string
+    service?: string
+  }
 }
 
 const BarbershopsPage = async ({ searchParams }: BarbershopsPageProps) => {
@@ -36,7 +36,7 @@ const BarbershopsPage = async ({ searchParams }: BarbershopsPageProps) => {
           : {},
       ],
     },
-  });
+  })
 
   return (
     <div>
@@ -56,7 +56,7 @@ const BarbershopsPage = async ({ searchParams }: BarbershopsPageProps) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default BarbershopsPage;
+export default BarbershopsPage

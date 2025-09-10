@@ -1,32 +1,31 @@
-"use client";
+"use client"
 
-import { Barbershop, BarbershopService, Booking } from "@prisma/client";
-import Image from "next/image";
-import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
+import { Barbershop, BarbershopService, Booking } from "@prisma/client"
+import Image from "next/image"
+import { Button } from "./ui/button"
+import { Card, CardContent } from "./ui/card"
 import {
   Sheet,
   SheetContent,
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "./ui/sheet";
-import { Calendar } from "./ui/calendar";
-import { ptBR } from "date-fns/locale";
-import { useEffect, useMemo, useState } from "react";
-import { isPast, isToday, set } from "date-fns";
-import { createBooking } from "../_actions/create-booking";
-import { useSession } from "next-auth/react";
-import { toast } from "sonner";
-import { getBookings } from "../_actions/get-bookings";
-import { Dialog, DialogContent } from "./ui/dialog";
-import SignInDialog from "./sign-in-dialog";
-import BookingSummary from "./booking-summary";
-import { useRouter } from "next/navigation";
+} from "./ui/sheet"
+import { useEffect, useMemo, useState } from "react"
+import { isToday } from "date-fns"
+import { createBooking } from "../_actions/create-booking"
+import { useSession } from "next-auth/react"
+import { toast } from "sonner"
+import { getBookings } from "../_actions/get-bookings"
+import { Dialog, DialogContent } from "./ui/dialog"
+import SignInDialog from "./sign-in-dialog"
+import BookingSummary from "./booking-summary"
+import { useRouter } from "next/navigation"
+import { SimpleCalendar } from "./simple-calendar"
 
 interface ServiceItemProps {
-  service: BarbershopService;
-  barbershop: Pick<Barbershop, "name">;
+  service: BarbershopService
+  barbershop: Pick<Barbershop, "name">
 }
 
 const TIME_LIST = [
@@ -51,115 +50,152 @@ const TIME_LIST = [
   "17:00",
   "17:30",
   "18:00",
-];
+]
 
 interface GetTimeListProps {
-  bookings: Booking[];
-  selectedDay: Date;
+  bookings: Booking[]
+  selectedDay: Date
 }
 
 const getTimeList = ({ bookings, selectedDay }: GetTimeListProps) => {
+  if (!selectedDay) {
+    return []
+  }
+
+  const now = new Date()
+  const isTodaySelected = isToday(selectedDay)
+
   return TIME_LIST.filter((time) => {
-    const hour = Number(time.split(":")[0]);
-    const minutes = Number(time.split(":")[1]);
+    const hour = Number(time.split(":")[0])
+    const minutes = Number(time.split(":")[1])
 
-    const timeIsOnThePast = isPast(set(new Date(), { hours: hour, minutes }));
-    if (timeIsOnThePast && isToday(selectedDay)) {
-      return false;
+    // Verificar se é horário passado (apenas para hoje)
+    if (isTodaySelected) {
+      const currentHour = now.getHours()
+      const currentMinutes = now.getMinutes()
+
+      // Comparar apenas horas e minutos
+      if (
+        hour < currentHour ||
+        (hour === currentHour && minutes < currentMinutes)
+      ) {
+        return false
+      }
     }
 
-    const hasBookingOnCurrentTime = bookings.some(
-      (booking) =>
-        booking.date.getHours() === hour &&
-        booking.date.getMinutes() === minutes
-    );
-    if (hasBookingOnCurrentTime) {
-      return false;
-    }
-    return true;
-  });
-};
+    // Verificar se há reserva neste horário
+    const hasBooking = bookings.some((booking) => {
+      const bookingDate = new Date(booking.date)
+      return (
+        bookingDate.getHours() === hour && bookingDate.getMinutes() === minutes
+      )
+    })
+
+    return !hasBooking
+  })
+}
+
+// Função helper para substituir o 'set' do date-fns
+const setDateTime = (date: Date, hours: number, minutes: number) => {
+  const newDate = new Date(date)
+  newDate.setHours(hours, minutes, 0, 0)
+  return newDate
+}
 
 const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
-  const { data } = useSession();
-  const router = useRouter();
-  const [signInDialogIsOpen, setSignInDialogIsOpen] = useState(false);
-  const [selectedDay, setSelectedDay] = useState<Date | undefined>(undefined);
+  const { data } = useSession()
+  const router = useRouter()
+  const [signInDialogIsOpen, setSignInDialogIsOpen] = useState(false)
+  const [selectedDay, setSelectedDay] = useState<Date | undefined>(undefined)
   const [selectedTime, setSelectedTime] = useState<string | undefined>(
-    undefined
-  );
-  const [dayBookings, setDayBookings] = useState<Booking[]>([]);
-  const [bookingSheetIsOpen, setBookingSheetIsOpen] = useState(false);
+    undefined,
+  )
+  const [dayBookings, setDayBookings] = useState<Booking[]>([])
+  const [bookingSheetIsOpen, setBookingSheetIsOpen] = useState(false)
 
   useEffect(() => {
     const fetch = async () => {
-      if (!selectedDay) return;
-      const bookings = await getBookings({
-        date: selectedDay,
-        serviceId: service.id,
-      });
-      setDayBookings(bookings);
-    };
-    fetch();
-  }, [selectedDay, service.id]);
+      if (!selectedDay) {
+        setDayBookings([])
+        return
+      }
+
+      try {
+        const bookings = await getBookings({
+          date: selectedDay,
+          serviceId: service.id,
+        })
+
+        setDayBookings(bookings)
+      } catch (error) {
+        console.error("Erro ao buscar reservas:", error)
+        setDayBookings([])
+      }
+    }
+    fetch()
+  }, [selectedDay, service.id])
 
   const selectedDate = useMemo(() => {
-    if (!selectedDay || !selectedTime) return;
-    return set(selectedDay, {
-      hours: Number(selectedTime?.split(":")[0]),
-      minutes: Number(selectedTime?.split(":")[1]),
-    });
-  }, [selectedDay, selectedTime]);
+    if (!selectedDay || !selectedTime) return
+    return setDateTime(
+      selectedDay,
+      Number(selectedTime?.split(":")[0]),
+      Number(selectedTime?.split(":")[1]),
+    )
+  }, [selectedDay, selectedTime])
 
   const handleBookingClick = () => {
     if (data?.user) {
-      return setBookingSheetIsOpen(true);
+      return setBookingSheetIsOpen(true)
     }
-    return setSignInDialogIsOpen(true);
-  };
+    return setSignInDialogIsOpen(true)
+  }
 
   const handleBookingSheetOpenChange = () => {
-    setSelectedDay(undefined);
-    setSelectedTime(undefined);
-    setDayBookings([]);
-    setBookingSheetIsOpen(false);
-  };
+    setSelectedDay(undefined)
+    setSelectedTime(undefined)
+    setDayBookings([])
+    setBookingSheetIsOpen(false)
+  }
 
   const handleDateSelect = (date: Date | undefined) => {
-    setSelectedDay(date);
-  };
+    setSelectedDay(date)
+  }
 
   const handleTimeSelect = (time: string) => {
-    setSelectedTime(time);
-  };
+    setSelectedTime(time)
+  }
 
   const handleCreateBooking = async () => {
     try {
-      if (!selectedDate) return;
+      if (!selectedDate) return
       await createBooking({
         serviceId: service.id,
         date: selectedDate,
-      });
-      handleBookingSheetOpenChange();
+      })
+      handleBookingSheetOpenChange()
       toast.success("Reserva criada com sucesso!", {
         action: {
           label: "Ver agendamentos",
           onClick: () => router.push("/bookings"),
         },
-      });
+      })
     } catch (error) {
-      console.error(error);
-      toast.error("Erro ao criar reserva!");
+      console.error(error)
+      toast.error("Erro ao criar reserva!")
     }
-  };
+  }
 
   const timeList = useMemo(() => {
-    if (!selectedDay) return [];
+    if (!selectedDay) {
+      return []
+    }
+
     return getTimeList({
       bookings: dayBookings,
       selectedDay,
-    });
-  }, [dayBookings, selectedDay]);
+    })
+  }, [dayBookings, selectedDay])
 
   return (
     <>
@@ -171,6 +207,7 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
               alt={service.name}
               src={service.imageUrl}
               fill
+              sizes="(max-width: 768px) 100px, 110px"
               className="rounded-lg object-cover"
             />
           </div>
@@ -199,41 +236,16 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                   Reservar
                 </Button>
 
-                <SheetContent className="px-0">
-                  <SheetHeader>
+                <SheetContent className="w-full px-0 sm:max-w-md">
+                  <SheetHeader className="px-5">
                     <SheetTitle>Fazer Reserva</SheetTitle>
                   </SheetHeader>
 
-                  <div className="border-b border-solid py-5">
-                    <Calendar
-                      mode="single"
-                      locale={ptBR}
+                  <div className="border-b border-solid px-5 py-5">
+                    <SimpleCalendar
                       selected={selectedDay}
                       onSelect={handleDateSelect}
                       fromDate={new Date()}
-                      styles={{
-                        head_cell: {
-                          width: "100%",
-                          textTransform: "capitalize",
-                        },
-                        cell: {
-                          width: "100%",
-                        },
-                        button: {
-                          width: "100%",
-                        },
-                        nav_button_previous: {
-                          width: "32px",
-                          height: "32px",
-                        },
-                        nav_button_next: {
-                          width: "32px",
-                          height: "32px",
-                        },
-                        caption: {
-                          textTransform: "capitalize",
-                        },
-                      }}
                     />
                   </div>
 
@@ -253,9 +265,11 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                           </Button>
                         ))
                       ) : (
-                        <p className="text-xs">
-                          Não há horários disponíveis para este dia.
-                        </p>
+                        <div className="w-full text-center">
+                          <p className="text-xs">
+                            Não há horários disponíveis para este dia.
+                          </p>
+                        </div>
                       )}
                     </div>
                   )}
@@ -293,7 +307,7 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
         </DialogContent>
       </Dialog>
     </>
-  );
-};
+  )
+}
 
-export default ServiceItem;
+export default ServiceItem

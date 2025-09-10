@@ -1,10 +1,10 @@
-import { signIn } from "next-auth/react";
-import { Button } from "./ui/button";
-import { DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
-import Image from "next/image";
+import { signIn } from "next-auth/react"
+import { Button } from "./ui/button"
+import { DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog"
+import Image from "next/image"
 
 const SignInDialog = () => {
-  const handleLoginWithGoogleClick = () => signIn("google");
+  const handleLoginWithGoogleClick = () => signIn("google")
 
   return (
     <>
@@ -29,7 +29,7 @@ const SignInDialog = () => {
         Google
       </Button>
     </>
-  );
-};
+  )
+}
 
-export default SignInDialog;
+export default SignInDialog

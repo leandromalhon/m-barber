@@ -1,11 +1,11 @@
-"use server";
+"use server"
 
-import { endOfDay, startOfDay } from "date-fns";
-import { db } from "../_lib/prisma";
+import { endOfDay, startOfDay } from "date-fns"
+import { db } from "../_lib/prisma"
 
 interface GetBookingsProps {
-  serviceId: string;
-  date: Date;
+  serviceId: string
+  date: Date
 }
 
 export const getBookings = ({ date }: GetBookingsProps) => {
@@ -16,5 +16,5 @@ export const getBookings = ({ date }: GetBookingsProps) => {
         gte: startOfDay(date),
       },
     },
-  });
-};
+  })
+}

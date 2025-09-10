@@ -7,6 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ✅ ADICIONE ESTE ENUM
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -89,6 +97,8 @@ model Booking {
   serviceId String
   service   BarbershopService @relation(fields: [serviceId], references: [id])
   date      DateTime
+  // ✅ ADICIONE ESTE CAMPO
+  status    BookingStatus     @default(CONFIRMED)
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 }

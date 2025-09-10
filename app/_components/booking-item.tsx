@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import { Prisma } from "@prisma/client";
-import { Avatar, AvatarImage } from "./ui/avatar";
-import { Badge } from "./ui/badge";
-import { Card, CardContent } from "./ui/card";
-import { format, isFuture } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { Prisma } from "@prisma/client"
+import { Avatar, AvatarImage } from "./ui/avatar"
+import { Badge } from "./ui/badge"
+import { Card, CardContent } from "./ui/card"
+import { isFuture } from "date-fns"
+// Removida a importação do format e ptBR para usar JavaScript nativo
 import {
   Sheet,
   SheetClose,
@@ -14,10 +14,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "./ui/sheet";
-import Image from "next/image";
-import PhoneItem from "./phone-item";
-import { Button } from "./ui/button";
+} from "./ui/sheet"
+import Image from "next/image"
+import PhoneItem from "./phone-item"
+import { Button } from "./ui/button"
 import {
   Dialog,
   DialogContent,
@@ -26,45 +26,48 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
-import { DialogClose } from "@radix-ui/react-dialog";
-import { deleteBooking } from "../_actions/delete-booking";
-import { toast } from "sonner";
-import { useState } from "react";
-import BookingSummary from "./booking-summary";
+} from "./ui/dialog"
+import { DialogClose } from "@radix-ui/react-dialog"
+import { deleteBooking } from "../_actions/delete-booking"
+import { toast } from "sonner"
+import { useState } from "react"
+import BookingSummary from "./booking-summary"
 
 interface BookingItemProps {
   booking: Prisma.BookingGetPayload<{
     include: {
       service: {
         include: {
-          barbershop: true;
-        };
-      };
-    };
-  }>;
+          barbershop: true
+        }
+      }
+    }
+  }>
 }
 
 // TODO: receber agendamento como prop
 const BookingItem = ({ booking }: BookingItemProps) => {
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
   const {
     service: { barbershop },
-  } = booking;
-  const isConfirmed = isFuture(booking.date);
+  } = booking
+  const isConfirmed = isFuture(new Date(booking.date))
+
   const handleCancelBooking = async () => {
     try {
-      await deleteBooking(booking.id);
-      setIsSheetOpen(false);
-      toast.success("Reserva cancelada com sucesso!");
+      await deleteBooking(booking.id)
+      setIsSheetOpen(false)
+      toast.success("Reserva cancelada com sucesso!")
     } catch (error) {
-      console.error(error);
-      toast.error("Erro ao cancelar reserva. Tente novamente.");
+      console.error(error)
+      toast.error("Erro ao cancelar reserva. Tente novamente.")
     }
-  };
+  }
+
   const handleSheetOpenChange = (isOpen: boolean) => {
-    setIsSheetOpen(isOpen);
-  };
+    setIsSheetOpen(isOpen)
+  }
+
   return (
     <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
       <SheetTrigger className="w-full min-w-[90%]">
@@ -90,13 +93,20 @@ const BookingItem = ({ booking }: BookingItemProps) => {
             {/* DIREITA */}
             <div className="flex flex-col items-center justify-center border-l-2 border-solid px-5">
               <p className="text-sm capitalize">
-                {format(booking.date, "MMMM", { locale: ptBR })}
+                {new Date(booking.date).toLocaleDateString("pt-BR", {
+                  month: "long",
+                })}
               </p>
               <p className="text-2xl">
-                {format(booking.date, "dd", { locale: ptBR })}
+                {new Date(booking.date).toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                })}
               </p>
               <p className="text-sm">
-                {format(booking.date, "HH:mm", { locale: ptBR })}
+                {new Date(booking.date).toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </p>
             </div>
           </CardContent>
@@ -140,7 +150,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
             <BookingSummary
               barbershop={barbershop}
               service={booking.service}
-              selectedDate={booking.date}
+              selectedDate={new Date(booking.date)}
             />
           </div>
 
@@ -195,7 +205,7 @@ const BookingItem = ({ booking }: BookingItemProps) => {
         </SheetFooter>
       </SheetContent>
     </Sheet>
-  );
-};
+  )
+}
 
-export default BookingItem;
+export default BookingItem

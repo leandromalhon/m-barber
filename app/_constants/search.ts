@@ -1,6 +1,6 @@
 interface QuickSearchOption {
-  imageUrl: string;
-  title: string;
+  imageUrl: string
+  title: string
 }
 
 export const quickSearchOptions: QuickSearchOption[] = [
@@ -28,4 +28,4 @@ export const quickSearchOptions: QuickSearchOption[] = [
     imageUrl: "/hidratacao.svg",
     title: "Hidratação",
   },
-];
+]

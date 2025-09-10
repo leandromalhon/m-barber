@@ -1,26 +1,40 @@
-"use client";
+"use client"
 
-import { Button } from "./ui/button";
-import { CalendarIcon, HomeIcon, LogInIcon, LogOutIcon } from "lucide-react";
-import { SheetClose, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
-import { quickSearchOptions } from "../_constants/search";
-import Link from "next/link";
-import Image from "next/image";
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
-import { signOut, useSession } from "next-auth/react";
-import { Avatar, AvatarImage } from "./ui/avatar";
-import SignInDialog from "./sign-in-dialog";
+import { Button } from "./ui/button"
+import { CalendarIcon, HomeIcon, LogInIcon, LogOutIcon } from "lucide-react"
+import { SheetClose, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet"
+import { quickSearchOptions } from "../_constants/search"
+import Link from "next/link"
+import Image from "next/image"
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog"
+import { signOut, useSession, getSession } from "next-auth/react"
+import { Avatar, AvatarImage } from "./ui/avatar"
+import SignInDialog from "./sign-in-dialog"
+import { useEffect } from "react"
 
 const SidebarSheet = () => {
-  const { data } = useSession();
-  const handleLogoutClick = () => signOut();
+  // Debug: verificar se o provider está funcionando
+  useEffect(() => {
+    console.log("SidebarSheet montado")
+    getSession()
+      .then((session) => {
+        console.log("Sessão atual:", session)
+      })
+      .catch((error) => {
+        console.log("Erro ao obter sessão:", error)
+      })
+  }, [])
+
+  const { data, status } = useSession()
+  console.log("useSession data:", data, "status:", status)
+
+  const handleLogoutClick = () => signOut()
 
   return (
     <SheetContent className="overflow-y-auto">
       <SheetHeader>
         <SheetTitle className="text-left">Menu</SheetTitle>
       </SheetHeader>
-
       <div className="flex items-center justify-between gap-3 border-b border-solid py-5">
         {data?.user ? (
           <div className="flex items-center gap-2">
@@ -98,7 +112,7 @@ const SidebarSheet = () => {
         </div>
       )}
     </SheetContent>
-  );
-};
+  )
+}
 
-export default SidebarSheet;
+export default SidebarSheet

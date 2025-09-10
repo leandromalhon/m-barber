@@ -1,12 +1,11 @@
-import { format } from "date-fns";
-import { Card, CardContent } from "./ui/card";
-import { Barbershop, BarbershopService } from "@prisma/client";
-import { ptBR } from "date-fns/locale";
+// Removidas as importações problemáticas do date-fns
+import { Card, CardContent } from "./ui/card"
+import { Barbershop, BarbershopService } from "@prisma/client"
 
 interface BookingSummaryProps {
-  service: Pick<BarbershopService, "name" | "price">;
-  barbershop: Pick<Barbershop, "name">;
-  selectedDate: Date;
+  service: Pick<BarbershopService, "name" | "price">
+  barbershop: Pick<Barbershop, "name">
+  selectedDate: Date
 }
 
 const BookingSummary = ({
@@ -26,28 +25,31 @@ const BookingSummary = ({
             }).format(Number(service.price))}
           </p>
         </div>
-
         <div className="flex items-center justify-between">
           <h2 className="text-sm text-gray-400">Data</h2>
           <p className="text-sm">
-            {format(selectedDate, "d 'de' MMMM", {
-              locale: ptBR,
+            {selectedDate.toLocaleDateString("pt-BR", {
+              day: "numeric",
+              month: "long",
             })}
           </p>
         </div>
-
         <div className="flex items-center justify-between">
           <h2 className="text-sm text-gray-400">Horário</h2>
-          <p className="text-sm">{format(selectedDate, "HH:mm")}</p>
+          <p className="text-sm">
+            {selectedDate.toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </p>
         </div>
-
         <div className="flex items-center justify-between">
           <h2 className="text-sm text-gray-400">Barbearia</h2>
           <p className="text-sm">{barbershop.name}</p>
         </div>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default BookingSummary;
+export default BookingSummary
