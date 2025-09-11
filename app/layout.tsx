@@ -9,7 +9,43 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "M-Barber",
-  description: "Sistema de barbearia",
+  description:
+    "Agende nos melhores barbeiros com M-Barber - Sistema completo de barbearia",
+  openGraph: {
+    title: "M-Barber - Sistemas para Barbearias",
+    description: "Agende nos melhores barbeiros com M-Barber",
+    url: "https://m-barber.vercel.app",
+    siteName: "M-Barber",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "M-Barber - Sistemas para Barbearias",
+      },
+    ],
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "M-Barber",
+    description: "Agende nos melhores barbeiros com M-Barber",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  keywords: [
+    "barbearia",
+    "barbeiro",
+    "agendamento",
+    "corte de cabelo",
+    "barba",
+  ],
+  authors: [{ name: "M-Barber" }],
+  viewport: "width=device-width, initial-scale=1",
 }
 
 export default function RootLayout({
