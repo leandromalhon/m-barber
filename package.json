@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "test": "echo \"No tests configured\"",
     "lint": "next lint",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -46,10 +47,8 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "autoprefixer": "^10.4.21",
-    "commit-msg-linter": "^1.1.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
-    "git-commit-msg-linter": "^5.0.8",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.7",
     "postcss": "^8.5.6",
